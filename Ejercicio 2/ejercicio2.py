@@ -31,7 +31,7 @@ def get_data(con: Connection):
     print('Obteniendo datos de {}'.format(LINK))
     raw = request.urlopen(LINK).read().decode('utf-8')
 
-    regex_pattern = '<item>[\s\S]<title>(.*|[\s\S])<\/title>[\s\S]<link>(.*|[\s\S])?<\/link>[\s\S]*?<pubDate>(.*|[\s\S])<\/pubDate>[\s\S]*?<\/item>'
+    regex_pattern = '<item>[\s\S]*?<title>([\s\S]*?)<\/title>[\s\S]*?<link>([\s\S]*?)<\/link>[\s\S]*?<pubDate>([\s\S]*?)<\/pubDate>[\s\S]*?<\/item>'
     parsed = re.findall(regex_pattern, raw)
     elements_parsed = []
     for tup in parsed:
