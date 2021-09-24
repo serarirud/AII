@@ -25,16 +25,29 @@ def insert_group(connection: Connection, data: list[dict[str, str]]) -> None:
         date = noticia['date']
         insert(connection, name, link, date)
 
-def get_data():
+def get_data(con: Connection):
     LINK = 'https://sevilla.abc.es/rss/feeds/Sevilla_Sevilla.xml'
 
     print('Obteniendo datos de {}'.format(LINK))
     raw = request.urlopen(LINK).read().decode('utf-8')
 
-    regex_pattern = '<item>[\s\S]<title>(.*|[\s\S])<\/title>[\s\S]<link>(.*|[\s\S])<\/link>[\s\S]*<pubDate>(.*|[\s\S])<\/pubDate>[\s\S]*<\/item>'
+    regex_pattern = '<item>[\s\S]<title>(.*|[\s\S])<\/title>[\s\S]<link>(.*|[\s\S])?<\/link>[\s\S]*?<pubDate>(.*|[\s\S])<\/pubDate>[\s\S]*?<\/item>'
     parsed = re.findall(regex_pattern, raw)
-    print(parsed)
+    elements_parsed = []
+    for tup in parsed:
+        noticia = dict()
+        noticia['name'] = tup[0]
+        noticia['link'] = tup[1]
+        noticia['date'] = tup[2]
+        elements_parsed.append(noticia)
     
+    insert_group(con, elements_parsed)
+    print('Datos guardados.')
 
-get_data()
+con = create_table()
+get_data(con)
+cursor = con.execute('SELECT * FROM Noticias')
+
+for element in cursor:
+    print(element)
 
