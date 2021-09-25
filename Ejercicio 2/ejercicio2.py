@@ -1,14 +1,14 @@
-from dataclasses import dataclass
 from urllib import request
 import re
 import sqlite3
-from sqlite3 import Connection
+from sqlite3 import Connection, Cursor
+import datetime
 
-@dataclass
-class DatosNoticias():
-    name: str
-    link: str
-    date: str
+class InvalidMonthException(Exception):
+    pass
+
+class InvalidDateException(Exception):
+    pass
 
 def create_table() -> Connection:
     con = sqlite3.connect('database.db')
@@ -25,7 +25,8 @@ def insert_group(connection: Connection, data: list[dict[str, str]]) -> None:
         date = noticia['date']
         insert(connection, name, link, date)
 
-def get_data(con: Connection):
+def almacenar(con: Connection):
+    '''Obtiene los datos del enlace y los almacena en la base de datos sin commit'''
     LINK = 'https://sevilla.abc.es/rss/feeds/Sevilla_Sevilla.xml'
 
     print('Obteniendo datos de {}'.format(LINK))
@@ -44,10 +45,34 @@ def get_data(con: Connection):
     insert_group(con, elements_parsed)
     print('Datos guardados.')
 
-con = create_table()
-get_data(con)
-cursor = con.execute('SELECT * FROM Noticias')
+def get_data(con: Connection) -> Cursor:
+    '''Devuelve un cursor con los datos'''
+    cursor = con.execute('SELECT * FROM Noticias')
+    return cursor
 
-for element in cursor:
-    print(element)
+def find_data_by_month(con: Connection, month: str) -> list[dict[str, str]]:
+    if not re.fullmatch('A-Za-z{2}', month):
+        raise InvalidMonthException()
+    cursor = get_data(con)
+    return [{'name': name, 'link': link, 'date': date} for name, link, date in cursor if re.fullmatch('[\s\S]*?' + month + '[\s\S]*?', date)]
+
+def find_data_by_date(con: Connection, date: str) -> list[dict[str, str]]:
+    pattern = '([0-2]\d|3[01])/(0[1-9]|1[0-3])/(20\d{2})'
+    if not re.fullmatch(pattern, date):
+        raise InvalidDateException()
+    
+    cursor = get_data(con)
+    day, month, year = re.findall(pattern, date)[0]
+
+    date_parsed = datetime.datetime(int(year), int(month), int(day))
+    str_date = date_parsed.strftime('%a, %d %b %Y')
+
+    return [{'name': name, 'link': link, 'date': news_date} for name, link, news_date in cursor if re.fullmatch(str_date + '[\s\S]*', news_date)]
+
+
+    
+
+con = create_table()
+almacenar(con)
+
 
