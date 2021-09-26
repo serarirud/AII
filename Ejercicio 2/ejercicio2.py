@@ -1,11 +1,10 @@
-from tkinter.constants import INSERT
-from typing import Text
 from urllib import request
 import re
 import sqlite3
 from sqlite3 import Connection, Cursor
 import datetime
 import tkinter as tk
+from tkinter.constants import INSERT
 
 class InvalidMonthException(Exception):
     pass
@@ -31,10 +30,14 @@ class App(tk.Frame):
         self.listar_bt["text"] = "Listar"
         self.listar_bt["command"] = self.listar
         self.listar_bt.pack(side="left")
-        self.listar_bt = tk.Button(self)
-        self.listar_bt["text"] = "Busca mes"
-        self.listar_bt["command"] = self.busca_mes
-        self.listar_bt.pack(side="left")
+        self.buscar_mes_bt = tk.Button(self)
+        self.buscar_mes_bt["text"] = "Busca mes"
+        self.buscar_mes_bt["command"] = self.busca_mes
+        self.buscar_mes_bt.pack(side="left")
+        self.buscar_dia_bt = tk.Button(self)
+        self.buscar_dia_bt["text"] = "Busca dia"
+        self.buscar_dia_bt["command"] = self.busca_dia
+        self.buscar_dia_bt.pack(side="left")
     
     def create_table(self) -> None:
         self.con = sqlite3.connect('database.db')
@@ -70,6 +73,11 @@ class App(tk.Frame):
         
         self.insert_group(elements_parsed)
         print('Datos guardados.')
+        info_window = tk.Tk()
+        info_label = tk.Label(info_window)
+        info_label['text'] = 'BD creada correctamente'
+        info_label.pack()
+        info_window.mainloop()
 
     def get_data(self) -> Cursor:
         '''Devuelve un cursor con los datos'''
@@ -83,9 +91,15 @@ class App(tk.Frame):
     
     def listar_aux(self, text):
         lista_wind = tk.Tk()
-        text_widget = tk.Text(lista_wind)
-        text_widget.insert(INSERT, text)
-        text_widget.pack()
+        if len(text) != 0:
+            text_widget = tk.Text(lista_wind)
+            text_widget.insert(INSERT, text)
+            text_widget.pack()
+        else:
+            label_widget = tk.Label(lista_wind)
+            label_widget['text'] = 'No se encontraron datos'
+            label_widget.pack()
+
         lista_wind.mainloop()
 
 
@@ -129,6 +143,28 @@ class App(tk.Frame):
         str_date = date_parsed.strftime('%a, %d %b %Y')
 
         return [{'name': name, 'link': link, 'date': news_date} for name, link, news_date in cursor if re.fullmatch(str_date + '[\s\S]*', news_date)]
+    
+    def busca_dia(self):
+        busca_win = tk.Tk()
+        label_widget = tk.Label(busca_win)
+        label_widget['text'] = 'Introduzca el dia (dd/mm/aaaa)'
+        label_widget.pack(side='left')
+        day_input = tk.Entry(busca_win)
+        day_input.pack(side="left")
+        submit = tk.Button(busca_win)
+        submit['text'] = 'Buscar'
+        submit['command'] = lambda: self.mostrar_filtro_dia(busca_win, day_input)
+        submit.pack(side="left")
+    
+    def mostrar_filtro_dia(self, main_window: tk.Tk, day_input: tk.Entry):
+        day = day_input.get()
+        main_window.destroy()
+        try:
+            data = self.find_data_by_date(day)
+            text = '\n'.join(['{}\n{}\n{}\n'.format(dicc['name'], dicc['link'], dicc['date']) for dicc in data])
+            self.listar_aux(text)
+        except InvalidDateException:
+            self.busca_dia()
 
 
 root = tk.Tk()
