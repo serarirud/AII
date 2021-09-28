@@ -8,6 +8,7 @@ def create_table() -> None:
     con.execute('''CREATE TABLE IF NOT EXISTS Books (ISBN int NOT NULL, Title varchar(255) NOT NULL, Author varchar(255), Year int, 
                     Publisher varchar(255), PRIMARY KEY (ISBN))''')
     con.commit()
+    con.close()
 
 def import_data_to_db() -> None:
     con = sqlite3.connect(BOOKS_FILE_NAME.format('db'))
@@ -18,11 +19,14 @@ def import_data_to_db() -> None:
             con.execute('INSERT INTO Books (ISBN, Title, Author, Year, Publisher) VALUES (?,?,?,?,?)',
             (line[0], line[1], line[2], int(line[3]) if line[3] != 'Unknown' else -1, line[4]))
     con.commit()
+    con.close()
 
-con = sqlite3.connect(BOOKS_FILE_NAME.format('db'))
-con.execute('DROP TABLE IF EXISTS Books')
-create_table()
-import_data_to_db()
-con = sqlite3.connect(BOOKS_FILE_NAME.format('db'))
-cursor = con.execute('SELECT * FROM Books')
-print(len(list(cursor)))
+def cargar() -> None:
+    con = sqlite3.connect(BOOKS_FILE_NAME.format('db'))
+    con.execute('DROP TABLE IF EXISTS Books')
+    create_table()
+    import_data_to_db()
+    con = sqlite3.connect(BOOKS_FILE_NAME.format('db'))
+    cursor = con.execute('SELECT * FROM Books')
+    print('Cargados {} libros'.format(len(list(cursor))))
+    con.close()
