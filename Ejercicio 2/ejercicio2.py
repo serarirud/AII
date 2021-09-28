@@ -5,6 +5,7 @@ from sqlite3 import Connection, Cursor
 import datetime
 import tkinter as tk
 from tkinter.constants import INSERT
+from tkinter import messagebox
 
 class InvalidMonthException(Exception):
     pass
@@ -73,11 +74,7 @@ class App(tk.Frame):
         
         self.insert_group(elements_parsed)
         print('Datos guardados.')
-        info_window = tk.Tk()
-        info_label = tk.Label(info_window)
-        info_label['text'] = 'BD creada correctamente'
-        info_label.pack()
-        info_window.mainloop()
+        messagebox.showinfo('Alerta', 'Base de datos creada correctamente')
 
     def get_data(self) -> Cursor:
         '''Devuelve un cursor con los datos'''
@@ -90,17 +87,14 @@ class App(tk.Frame):
         self.listar_aux(text)
     
     def listar_aux(self, text):
-        lista_wind = tk.Tk()
         if len(text) != 0:
+            lista_wind = tk.Tk()
             text_widget = tk.Text(lista_wind)
             text_widget.insert(INSERT, text)
             text_widget.pack()
+            lista_wind.mainloop()
         else:
-            label_widget = tk.Label(lista_wind)
-            label_widget['text'] = 'No se encontraron datos'
-            label_widget.pack()
-
-        lista_wind.mainloop()
+            messagebox.showinfo('Alert', 'No se encontraron datos')
 
 
     def find_data_by_month(self, month: str) -> list[dict[str, str]]:
