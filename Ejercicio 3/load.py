@@ -21,12 +21,14 @@ def import_data_to_db() -> None:
     con.commit()
     con.close()
 
-def cargar() -> None:
+def cargar() -> int:
     con = sqlite3.connect(BOOKS_FILE_NAME.format('db'))
     con.execute('DROP TABLE IF EXISTS Books')
     create_table()
     import_data_to_db()
     con = sqlite3.connect(BOOKS_FILE_NAME.format('db'))
     cursor = con.execute('SELECT * FROM Books')
-    print('Cargados {} libros'.format(len(list(cursor))))
+    size = len(list(cursor))
+    print('Cargados {} libros'.format(size))
     con.close()
+    return size

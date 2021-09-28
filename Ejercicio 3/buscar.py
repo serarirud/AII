@@ -18,8 +18,8 @@ def search_by_publisher(publisher):
 
 def get_all_publishers() -> list[str]:
     con = sqlite3.connect('books.db')
-    cursor = con.execute('SELECT Publisher FROM Books')
-    publishers = {publisher[0] for publisher in cursor}
+    cursor = con.execute('SELECT DISTINCT Publisher FROM Books')
+    publishers = [publisher[0] for publisher in cursor]
     con.close()
     return publishers
 
