@@ -102,10 +102,7 @@ def create_label(window: tk.Tk, text: str, side='left') -> None:
     label.pack(side=side)
 
 def create_spinbox(window: tk.Tk, options: list[str]) -> tk.Spinbox:
-    spinbox = tk.Spinbox(window)
-    for option in options:
-        spinbox.insert(END, option)
-    
+    spinbox = tk.Spinbox(window, width=200, values=options)
     spinbox.pack(side='top')
     return spinbox
 
