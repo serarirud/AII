@@ -1,3 +1,4 @@
+from tkinter.constants import END
 from bs4 import BeautifulSoup
 import sqlite3
 import tkinter as tk
@@ -56,18 +57,30 @@ def almacenar_resultados() -> None:
     
     messagebox.showinfo('Info', 'Se han guardados {} partidos correctamente'.format(num_partidos))
 
-def get_partidos() -> list[str]:
+def get_partidos() -> list[tuple[str]]:
     con = sqlite3.connect(DATABASE)
     data = con.execute('SELECT * FROM Resultados').fetchall()
     con.close()
     return data
 
 def listar_resultados() -> None:
-    pass
+    data = get_partidos()
+    window = tk.Tk()
+    scrollbar = tk.Scrollbar(window)
+    scrollbar.pack(side='right', fill='both')
+    listbox = tk.Listbox(window, yscrollcommand=scrollbar.set, width=200)
+    for d in data:
+        listbox.insert(END, str(d))
+
+    listbox.pack(side='left', fill='both')
+    scrollbar.config(command=listbox.yview)
+    window.mainloop()
+
 
 def start():
     main_window = tk.Tk()
     menu = tk.Menu(main_window, tearoff=0)
+
     almacenar = tk.Menu(menu, tearoff=0)
     almacenar.add_command(label='Almacenar', command=almacenar_resultados)
 
@@ -77,6 +90,7 @@ def start():
     listar.add_command(label='Listar', command=listar_resultados)
 
     menu.add_cascade(label='Listar', menu=listar)
+    
     main_window.config(menu=menu)
     main_window.mainloop()
 
