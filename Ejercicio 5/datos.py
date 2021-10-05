@@ -37,7 +37,7 @@ def get_film_data_from_url(url: str) -> tuple[str, str, str, str, str, str]:
 
     return titulo, titulo_original, paises, fecha_estreno, director, generos
 
-def save_data() -> None:
+def save_data() -> int:
     con = sqlite3.connect(DATABASE)
     con.execute('DROP TABLE IF EXISTS Films')
     con.execute('''CREATE TABLE IF NOT EXISTS Films (
@@ -54,6 +54,17 @@ def save_data() -> None:
                         (?, ?, ?, ?, ?, ?)''', element)
     con.commit()
     con.close()
+
+    con = sqlite3.connect(DATABASE)
+    size = con.execute('SELECT Count(*) FROM Films').fetchall()[0][0]
+    con.close()
+    return size
+
+def find_all() -> list[tuple[str, str, str, str, str, str]]:
+    con = sqlite3.connect(DATABASE)
+    data = con.execute('SELECT * FROM Films').fetchall()
+    con.close()
+    return data
 
 if __name__ == '__main__':
     print(get_film_data_from_url('https://www.elseptimoarte.net/peliculas/titane-23427.html'))
