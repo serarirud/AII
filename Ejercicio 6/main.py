@@ -6,6 +6,7 @@ from tkinter import messagebox
 import urllib
 from urllib import request
 import util
+import re
 
 LINK = 'https://resultados.as.com/resultados/futbol/primera/2017_2018/calendario/'
 DATABASE = 'database.db'
@@ -25,7 +26,7 @@ def get_resultados() -> dict[str, list[dict[str, str]]]:
             res = tr.find_all('td')[1].a.contents[0].split(' - ')
             partido['result_1'] = int(res[0])
             partido['result_2'] = int(res[1])
-            partido['link'] = tr.find_all('td')[1].a['href']
+            partido['link'] = 'https://resultados.as.com/' + tr.find_all('td')[1].a['href']
             jor_list.append(partido)
 
     return jor_dict
@@ -77,25 +78,48 @@ def listar_resultados() -> None:
     scrollbar.config(command=listbox.yview)
     window.mainloop()
 
-def buscar_jornada(query1: str) -> list[tuple]:
+def buscar_jornada(entry1: str) -> list[tuple]:
     con = sqlite3.connect(DATABASE)
-    res = list(con.execute('SELECT Equipo1, Result1, Equipo2, Result2 FROM Resultados WHERE Jornada LIKE ?', ('Jornada {}'.format(query1),)))
+    res = list(con.execute('SELECT Equipo1, Result1, Equipo2, Result2 FROM Resultados WHERE Jornada LIKE ?', ('Jornada {}'.format(entry1),)))
     con.close()
     return res
 
-def estadisticas_jornada(query1: str) -> list[tuple]:
+def estadisticas_jornada(entry1: str) -> list[tuple]:
     con = sqlite3.connect(DATABASE)
     get_goals = 'SELECT Sum(Result{}) FROM Resultados WHERE Jornada LIKE ?'
-    goles_totales = con.execute(get_goals.format(1), ('Jornada {}'.format(query1),)).fetchall()[0][0] + con.execute(get_goals.format(2), ('Jornada {}'.format(query1),)).fetchall()[0][0]
-    numeros_empates = con.execute('SELECT Count(*) FROM Resultados WHERE Result1 = Result2 AND Jornada LIKE ?', ('Jornada {}'.format(query1),)).fetchall()[0][0]
-    victorias_local = con.execute('SELECT Count(*) FROM Resultados WHERE Result1 > Result2 AND Jornada LIKE ?', ('Jornada {}'.format(query1),)).fetchall()[0][0]
-    victorias_visitante = con.execute('SELECT Count(*) FROM Resultados WHERE Result1 < Result2 AND Jornada LIKE ?', ('Jornada {}'.format(query1),)).fetchall()[0][0]
+    goles_totales = con.execute(get_goals.format(1), ('Jornada {}'.format(entry1),)).fetchall()[0][0] + con.execute(get_goals.format(2), ('Jornada {}'.format(entry1),)).fetchall()[0][0]
+    numeros_empates = con.execute('SELECT Count(*) FROM Resultados WHERE Result1 = Result2 AND Jornada LIKE ?', ('Jornada {}'.format(entry1),)).fetchall()[0][0]
+    victorias_local = con.execute('SELECT Count(*) FROM Resultados WHERE Result1 > Result2 AND Jornada LIKE ?', ('Jornada {}'.format(entry1),)).fetchall()[0][0]
+    victorias_visitante = con.execute('SELECT Count(*) FROM Resultados WHERE Result1 < Result2 AND Jornada LIKE ?', ('Jornada {}'.format(entry1),)).fetchall()[0][0]
     con.close()
     return ['Goles totales: {}'.format(goles_totales), 'Empates: {}'.format(numeros_empates),
             'Victorias local: {}'.format(victorias_local), 'Victorias visitante: {}'.format(victorias_visitante)]
 
-def buscar_goles(query1, query2, query3):
-    print(query1, query2, query3)
+def buscar_goles(entry1, entry2, entry3) -> list[tuple]:
+    jornada, local, visitante = entry1, entry2, entry3
+    if not (0 < int(jornada) < 39):
+        raise Exception
+    con = sqlite3.connect(DATABASE)
+    link = con.execute('SELECT Link FROM Resultados WHERE Jornada = ? AND Equipo1 LIKE ? AND Equipo2 LIKE ?', 
+                        ('Jornada {}'.format(jornada, local), '%{}%'.format(local), '%{}%'.format(visitante))).fetchone()[0]
+    raw_html = urllib.request.urlopen(link).read().decode('ISO-8859-1')
+    html = BeautifulSoup(raw_html, 'html.parser')
+    eventos_local = list(html.find_all(class_='eventos-local'))[0]
+    eventos_visit = list(html.find_all(class_='eventos-visit'))[0]
+    datos = [('Equipo local:')]
+    for evento in eventos_local.find_all(class_='txt-evento'):
+        if 'as-icon-futbol' in evento.span['class']:
+            jugador = evento.p.strong.contents[0]
+            minuto = evento.p.find_all('span')[0].contents[0]
+            datos.append(('Jugador: {}'.format(jugador), 'Minuto: {}'.format(minuto)))
+    datos.append(('Equipo visitante: '))
+    for evento in eventos_visit.find_all(class_='txt-evento'):
+        if 'as-icon-futbol' in evento.span['class']:
+            jugador = evento.p.strong.contents[0]
+            minuto = evento.p.find_all('span')[0].contents[0]
+            datos.append(('Jugador: {}'.format(jugador), 'Minuto: {}'.format(minuto)))
+    return datos
+
 
 def start():
     main_window = tk.Tk()

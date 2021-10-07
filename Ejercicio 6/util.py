@@ -37,10 +37,13 @@ def crear_listbox_con_scrollbar(data: list[tuple]) -> None:
 
 def create_search_window(labels, command) -> None:
     def listar(event):
-        kwargs = {'query{}'.format(i+1): entry.get() for i, entry in enumerate(entries)}
-        data = command(**kwargs)
-        window.destroy()
-        crear_listbox_con_scrollbar(data)
+        kwargs = {'entry{}'.format(i+1): entry.get() for i, entry in enumerate(entries)}
+        try:
+            window.destroy()
+            data = command(**kwargs)
+            crear_listbox_con_scrollbar(data)
+        except:
+            create_search_window(labels, command)
     window = tk.Tk()
     if not isinstance(labels, list):
         labels = [labels]
