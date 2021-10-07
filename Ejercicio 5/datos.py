@@ -3,7 +3,7 @@ import urllib
 from urllib import request
 from bs4 import BeautifulSoup
 
-DATABASE = 'films.db'
+DATABASE = 'database.db'
 LINK = 'https://www.elseptimoarte.net/estrenos/'
 
 def get_data() -> list[tuple[str, str, str, str, str, str]]:

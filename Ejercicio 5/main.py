@@ -17,8 +17,8 @@ def start() -> None:
     menu.add_cascade(label='Datos', menu=datos)
 
     busc = tk.Menu(menu, tearoff=0)
-    busc.add_command(label='Titulo', command=lambda: create_search_window(buscar.search_by_title))
-    busc.add_command(label='Fecha', command=lambda: create_search_window(buscar.search_by_date))
+    busc.add_command(label='Titulo', command=lambda: create_search_window('Título: ', buscar.search_by_title))
+    busc.add_command(label='Fecha', command=lambda: create_search_window('Fecha: ', buscar.search_by_date))
     busc.add_command(label='Genero', command=buscar_genero)
 
     menu.add_cascade(label='Buscar', menu=busc)
@@ -51,7 +51,7 @@ def crear_listbox_con_scrollbar(data: list[tuple[str, str, str, str, str, str]])
 def salir_app(main_window: tk.Tk) -> None:
     main_window.destroy()
 
-def create_search_window(command) -> None:
+def create_search_window(label: str, command) -> None:
     def listar(event):
         func = lambda search_query: command(search_query)
         data = func(entry.get())
@@ -59,6 +59,9 @@ def create_search_window(command) -> None:
         crear_listbox_con_scrollbar(data)
         
     window = tk.Tk()
+    label_widget = tk.Label(window)
+    label_widget['text'] = label
+    label_widget.pack(side='left')
     entry = tk.Entry(window)
     entry.bind("<Return>", listar)
     entry.pack()
