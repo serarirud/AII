@@ -35,21 +35,29 @@ def crear_listbox_con_scrollbar(data: list[tuple]) -> None:
     scrollbar.config(command=listbox.yview)
     main_window.mainloop()
 
-def create_search_window(label: str, command) -> None:
+def create_search_window(labels, command) -> None:
     def listar(event):
-        func = lambda search_query: command(search_query)
-        data = func(entry.get())
+        kwargs = {'query{}'.format(i+1): entry.get() for i, entry in enumerate(entries)}
+        data = command(**kwargs)
         window.destroy()
         crear_listbox_con_scrollbar(data)
-        
     window = tk.Tk()
+    if not isinstance(labels, list):
+        labels = [labels]
+
+    entries = []
+    for label in labels:
+        entries.append(create_entry(window, label, listar))
+    window.mainloop()
+
+def create_entry(window: tk.Tk, label: str, command) -> None:
     label_widget = tk.Label(window)
     label_widget['text'] = label
     label_widget.pack(side='left')
     entry = tk.Entry(window)
-    entry.bind("<Return>", listar)
+    entry.bind("<Return>", command)
     entry.pack(side='left')
-    window.mainloop()
+    return entry
 
 def create_option_button(window: tk.Tk, text: str, command, side='left') -> None:
     option = tk.Button(window)
