@@ -11,7 +11,7 @@ def descargar_datos() -> list[tuple[str, int, str, str, str]]:
     num_vinos = get_numero_de_vinos()
     vinos_por_pagina = 36
     for i in range(0, num_vinos, vinos_por_pagina):
-        pass
+        pass # Llevo 25 minutos
     
 
 def descargar_datos_vino() -> tuple[str, int, str, str, str]:
