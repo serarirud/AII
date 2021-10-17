@@ -6,13 +6,52 @@ DATABASE = 'database.db'
 LINK = 'https://www.vinissimus.com'
 PARAMETERS = '/es/vinos/tinto?cursor={}'
 
-def descargar_datos() -> list[tuple[str, int, str, str, list[str]]]:
+def guardar_datos(vinos: list[tuple[str, float, str, str, list[str]]]) -> int:
+    '''Crea una tabla para uvas, denominación y vino y guarda los datos'''
+    con = sqlite3.connect(DATABASE)
+    con.execute('''DROP TABLE IF EXISTS Vinos''')
+    con.execute('''DROP TABLE IF EXISTS UvasVino''')
+    con.execute('''CREATE TABLE Vinos (
+                    ID int UNIQUE,
+                    Nombre varchar(255),
+                    Precio float,
+                    Denominacion varchar(255),
+                    Bodega varchar(255),
+                    PRIMARY KEY (ID)
+                );''')
+    con.execute('''CREATE TABLE UvasVino (
+                    VinoID int,
+                    Uva varchar(255),
+                    FOREIGN KEY (VinoID) REFERENCES Vinos(ID)
+                );''')
+    
+    for i, vino in enumerate(vinos):
+        con.execute('INSERT INTO Vinos (ID, Nombre, Precio, Denominacion, Bodega) VALUES (?, ?, ?, ?, ?)', (i, vino[0], vino[1], vino[2], vino[3]))
+        for uva in vino[4]:
+            con.execute('INSERT INTO UvasVino (VinoID, Uva) VALUES (?, ?)', (i, uva))
+    
+    con.commit()
+    num = con.execute('SELECT Count(*) FROM Vinos').fetchall()[0][0]
+    con.close()
+    return num
+
+def get_vinos() -> list[tuple[str, float, str, str, list[str]]]:
+    con = sqlite3.connect(DATABASE)
+    vinos = []
+    vinos_database = con.execute('SELECT ID, Nombre, Precio, Denominacion, Bodega FROM Vinos').fetchall()
+    for vino in vinos_database:
+        uvas = [uva[0] for uva in con.execute('SELECT Uva FROM UvasVino WHERE VinoID = ?', (vino[0],)).fetchall()]
+        vinos.append((vino[1], vino[2], vino[3], vino[4], uvas))
+    
+    return vinos
+
+def descargar_datos() -> list[tuple[str, float, str, str, list[str]]]:
     '''Devuelve una lista de tuplas con los siguientes datos:
     nombre, precio, denominación, bodega y tipo de uva'''
     num_vinos = get_numero_de_vinos() # Muchos vinos
-    vinos_por_pagina = 36
+    vinos_por_pagina = 24
     vinos = []
-    for i in range(0, 36*1, vinos_por_pagina):
+    for i in range(0, 24*2, vinos_por_pagina):
         raw_html = urllib.request.urlopen(LINK + PARAMETERS.format(i))
         html = BeautifulSoup(raw_html, 'html.parser')
         for vino in html.find_all(class_='product-list-item'):
@@ -22,24 +61,7 @@ def descargar_datos() -> list[tuple[str, int, str, str, list[str]]]:
 
     return vinos
 
-def get_uvas(vinos: list[tuple[str, int, str, str, list[str]]]) -> set[str]:
-    tipos_uvas = set()
-    for vino in vinos:
-        uvas = set(vino[-1])
-        for uva in uvas:
-            tipos_uvas.add(uva)
-
-    return tipos_uvas
-
-def get_denominacion(vinos: list[tuple[str, int, str, str, list[str]]]) -> set[str]:
-    denominaciones = set()
-    for vino in vinos:
-        denominacion = vino[2]
-        denominaciones.add(denominacion)
-    
-    return denominaciones
-
-def descargar_datos_vino(url) -> tuple[str, int, str, str, list[str]]:
+def descargar_datos_vino(url) -> tuple[str, float, str, str, list[str]]:
     '''Dada la página de un vino devuelve los siguiente datos del vino:
     nombre, precio, denominación, bodega y tipo de uva'''
 
@@ -66,9 +88,9 @@ def get_numero_de_vinos() -> int:
     return int(html.find_all(class_='total-count')[0].contents[0].split(' ')[0])
 
 if __name__ == '__main__':
-    vinos = descargar_datos()
-    print(get_uvas(vinos))
-    print(get_denominacion(vinos))
+    # vinos = descargar_datos()
+    # guardar_datos(vinos)
+    get_vinos()
 
     # descargar_datos_vino('https://www.vinissimus.com/es/vino/abadia-retuerta-seleccion-especial/')
     # descargar_datos_vino('https://www.vinissimus.com/es/vino/pago-de-carraovejas/')

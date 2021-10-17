@@ -35,6 +35,19 @@ def crear_listbox_con_scrollbar(data: list[tuple]) -> None:
     scrollbar.config(command=listbox.yview)
     main_window.mainloop()
 
+def create_search_window_one_entry(label, command) -> None:
+    def listar(event):
+        try:
+            data = command(entry.get())
+            window.destroy()
+            crear_listbox_con_scrollbar(data)
+        except:
+            create_search_window(label, command)
+    window = tk.Tk()
+
+    entry = create_entry(window, label, listar)
+    window.mainloop()
+
 def create_search_window(labels, command) -> None:
     def listar(event):
         kwargs = {'entry{}'.format(i+1): entry.get() for i, entry in enumerate(entries)}
@@ -79,8 +92,14 @@ def create_label(window: tk.Tk, text: str, side='left') -> None:
     label['text'] = text
     label.pack(side=side)
 
-def create_spinbox(window: tk.Tk, options: list[str], command) -> tk.Spinbox:
+def create_spinbox(options: list[str], command):
+    def listar(event):
+        data = command(spinbox.get())
+        window.destroy()
+        crear_listbox_con_scrollbar(data)
+            
+    window = tk.Tk()
+    create_label(window, 'Escoge una uva', side='top')
     spinbox = tk.Spinbox(window, width=200, values=options)
     spinbox.pack(side='top')
-    
-    return spinbox
+    spinbox.bind('<Return>', listar)
