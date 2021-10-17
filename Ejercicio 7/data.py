@@ -51,13 +51,18 @@ def descargar_datos() -> list[tuple[str, float, str, str, list[str]]]:
     num_vinos = get_numero_de_vinos() # Muchos vinos
     vinos_por_pagina = 24
     vinos = []
-    for i in range(0, 24*2, vinos_por_pagina):
+    for i in range(0, num_vinos, vinos_por_pagina):
         raw_html = urllib.request.urlopen(LINK + PARAMETERS.format(i))
         html = BeautifulSoup(raw_html, 'html.parser')
         for vino in html.find_all(class_='product-list-item'):
-            enlace = LINK + vino.find_all('div')[0].find_all('div')[2].a['href']
-            print(enlace)
-            vinos.append(descargar_datos_vino(enlace))
+            try:
+                enlace = LINK + vino.find_all('div')[0].find_all('div')[2].a['href']
+                print(i, enlace)
+                vinos.append(descargar_datos_vino(enlace))
+            except:
+                enlace = LINK + vino.find_all('div')[0].find_all('div')[3].a['href']
+                print(i, enlace)
+                vinos.append(descargar_datos_vino(enlace))
 
     return vinos
 
@@ -88,9 +93,9 @@ def get_numero_de_vinos() -> int:
     return int(html.find_all(class_='total-count')[0].contents[0].split(' ')[0])
 
 if __name__ == '__main__':
-    # vinos = descargar_datos()
+    vinos = descargar_datos()
     # guardar_datos(vinos)
-    get_vinos()
+    # get_vinos()
 
     # descargar_datos_vino('https://www.vinissimus.com/es/vino/abadia-retuerta-seleccion-especial/')
     # descargar_datos_vino('https://www.vinissimus.com/es/vino/pago-de-carraovejas/')
