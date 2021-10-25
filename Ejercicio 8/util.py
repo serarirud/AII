@@ -92,14 +92,14 @@ def create_label(window: tk.Tk, text: str, side='left') -> None:
     label['text'] = text
     label.pack(side=side)
 
-def create_spinbox(options: list[str], command):
+def create_spinbox(options_command, command):
     def listar(event):
-        window.destroy()
         data = command(spinbox.get())
+        window.destroy()
         crear_listbox_con_scrollbar(data)
             
     window = tk.Tk()
     create_label(window, 'Escoge una uva', side='top')
-    spinbox = tk.Spinbox(window, width=200, values=options)
+    spinbox = tk.Spinbox(window, width=200, values=options_command())
     spinbox.pack(side='top')
     spinbox.bind('<Return>', listar)
