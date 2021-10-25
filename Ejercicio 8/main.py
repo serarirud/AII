@@ -6,6 +6,7 @@ from whoosh.fields import Schema, TEXT
 from whoosh.qparser import QueryParser
 import tkinter as tk
 import util
+from tkinter import messagebox
 
 INDEXDIR = './Ejercicio 8/indexdir'
 DATABASE = 'database.db'
@@ -39,6 +40,7 @@ def save():
     writer.commit()
     con.commit()
     con.close()
+    messagebox.showinfo('Guardado', 'Se han guardado {} documentos'.format(i))
 
 
 def get_remitentes() -> list[str]:
