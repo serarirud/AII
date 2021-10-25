@@ -61,7 +61,7 @@ def search(remitente: str) -> list[dict[str, str]]:
 def start() -> None:
     main_window = tk.Tk()
     util.create_option_button(main_window, 'Indexar', save)
-    util.create_option_button(main_window, 'Buscar remitente', lambda: util.create_spinbox(get_remitentes, search))
+    util.create_option_button(main_window, 'Buscar remitente', lambda: util.create_spinbox('Escoge un remitente', get_remitentes, search))
     main_window.mainloop()
 
 start()
