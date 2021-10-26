@@ -54,8 +54,8 @@ def create_search_window(labels, command) -> None:
     def listar(event):
         kwargs = {'entry{}'.format(i+1): entry.get() for i, entry in enumerate(entries)}
         try:
-            window.destroy()
             data = command(**kwargs)
+            window.destroy()
             crear_listbox_con_scrollbar(data)
         except ValueError as e:
             window.destroy()
