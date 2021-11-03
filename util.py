@@ -33,7 +33,7 @@ def crear_listbox_con_scrollbar(data: list[tuple]) -> None:
     
     listbox.pack(side='left', fill='both')
     scrollbar.config(command=listbox.yview)
-    main_window.mainloop()
+    main_window.mainloop
 
 def create_search_window_one_entry(label, command) -> None:
     def listar(event):
@@ -42,7 +42,6 @@ def create_search_window_one_entry(label, command) -> None:
             window.destroy()
             crear_listbox_con_scrollbar(data)
         except ValueError as e:
-            window.destroy()
             messagebox.showwarning('Warning', str(e))
             create_search_window(label, command)
     window = tk.Tk()
@@ -52,23 +51,49 @@ def create_search_window_one_entry(label, command) -> None:
 
 def create_search_window(labels, command) -> None:
     def listar(event):
-        kwargs = {'entry{}'.format(i+1): entry.get() for i, entry in enumerate(entries)}
+        args = [entry.get() for entry in entries]
         try:
             window.destroy()
-            data = command(**kwargs)
+            data = command(*args)
             crear_listbox_con_scrollbar(data)
         except ValueError as e:
-            window.destroy()
             messagebox.showwarning('Warning', str(e))
             create_search_window(labels, command)
     window = tk.Tk()
+    entries = check_labels_and_create_entries(labels, window, listar)
+    window.mainloop()
+
+def create_search_and_change_window(search_labels, change_labels, search_command, change_command, title: str, question: str) -> None:
+    def listar(event):
+        search_args = [entry.get() for entry in search_entries]
+        change_args = [entry.get() for entry in change_entries]
+        try:
+            window.destroy()
+            data = search_command(*search_args)
+            crear_listbox_con_scrollbar(data)
+            answer = messagebox.askyesno(title, question.format(*change_args))
+            if answer:
+                change_command(*search_args, *change_args)
+
+        except ValueError as e:
+            messagebox.showwarning('Warning', str(e))
+            create_search_and_change_window(search_labels, change_labels, search_command, change_command, title, question)
+    window = tk.Tk()
+
+    search_entries = check_labels_and_create_entries(search_labels, window, listar)
+    change_entries = check_labels_and_create_entries(change_labels, window, listar)
+
+    window.mainloop()
+
+def check_labels_and_create_entries(labels, window, command):
     if not isinstance(labels, list):
         labels = [labels]
 
     entries = []
     for label in labels:
-        entries.append(create_entry(window, label, listar))
-    window.mainloop()
+        entries.append(create_entry(window, label, command))
+    
+    return entries
 
 def create_entry(window: tk.Tk, label: str, command) -> None:
     label_widget = tk.Label(window)

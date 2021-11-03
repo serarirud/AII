@@ -2,7 +2,7 @@ import urllib
 from urllib import request
 from bs4 import BeautifulSoup
 from whoosh.index import create_in
-from whoosh.fields import Schema, TEXT, DATETIME
+from whoosh.fields import ID, Schema, TEXT, DATETIME
 from tkinter import messagebox
 import shutil
 import os
@@ -49,7 +49,7 @@ def get_film_data_from_url(url: str) -> dict[str, str]:
 
 def save_data() -> None:
     film_data = get_data()
-    schema = Schema(titulo=TEXT(stored=True), titulo_original=TEXT(stored=True), fecha_estreno=DATETIME(stored=True), paises=TEXT(stored=True)
+    schema = Schema(titulo=ID(stored=True, unique=True), titulo_original=TEXT(stored=True), fecha_estreno=DATETIME(stored=True), paises=TEXT(stored=True)
                     , generos=TEXT(stored=True), director=TEXT(stored=True), sinopsis=TEXT, url=TEXT)
     if os.path.exists(INDEXDIR):
         shutil.rmtree(INDEXDIR)
