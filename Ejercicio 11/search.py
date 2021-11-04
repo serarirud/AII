@@ -27,7 +27,7 @@ def search(fields, word, limit, *return_fields) -> list[tuple]:
 def search_by_title_or_description(words) -> list[tuple[str, str, str]]:
     return search(['titulo', 'sinopsis'], words.replace(' ', ' OR '), 10, 'titulo', 'titulo_original', 'director')
 
-def search_by_gender(genero_input: str) -> list[tuple[str, str, str]]:
+def search_by_genre(genero_input: str) -> list[tuple[str, str, str]]:
     ix = open_dir(INDEXDIR)
     all_docs = ix.searcher().documents()
     generos = set()
@@ -58,6 +58,6 @@ def search_by_title(title: str) -> list[tuple[str, str]]:
 
 if __name__ == '__main__':
     print(search_by_title_or_description('Eternals'))
-    print(search_by_title('Eternals'))
-    print(search_by_gender('Thriller'))
+    print(search_by_title('Alerta'))
+    print(search_by_genre('Thriller'))
     # print(search_by_date_range('20211101 20211120'))

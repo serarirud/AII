@@ -49,8 +49,8 @@ def get_film_data_from_url(url: str) -> dict[str, str]:
 
 def save_data() -> None:
     film_data = get_data()
-    schema = Schema(titulo=ID(stored=True, unique=True), titulo_original=TEXT(stored=True), fecha_estreno=DATETIME(stored=True), paises=TEXT(stored=True)
-                    , generos=TEXT(stored=True), director=TEXT(stored=True), sinopsis=TEXT, url=TEXT)
+    schema = Schema(titulo=TEXT(stored=True), titulo_original=TEXT(stored=True), fecha_estreno=DATETIME(stored=True), paises=TEXT(stored=True)
+                    , generos=TEXT(stored=True), director=TEXT(stored=True), sinopsis=TEXT, url=ID(stored=True, unique=True))
     if os.path.exists(INDEXDIR):
         shutil.rmtree(INDEXDIR)
     os.mkdir(INDEXDIR)

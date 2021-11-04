@@ -22,7 +22,7 @@ def start():
 
     busc = tk.Menu(menu, tearoff=0)
     busc.add_command(label='Título o Sinopsis', command=lambda: util.create_search_window('Título o Sinopsis: ', search.search_by_title_or_description))
-    busc.add_command(label='Géneros', command=lambda: util.create_search_window('Género (Sólo uno): ', search.search_by_gender))
+    busc.add_command(label='Géneros', command=lambda: util.create_search_window('Género (Sólo uno): ', search.search_by_genre))
     busc.add_command(label='Fecha', command=lambda: util.create_search_window('Rango de fechas (YYYYMMDD YYYYMMDD): ', search.search_by_date_range))
     busc.add_command(label='Modificar Fecha', command=lambda: util.create_search_and_change_window('Título: ', 'Fecha a cambiar (YYYYMMDD): ', 
                                                                                                     search.search_by_title, cambiar_fecha,
@@ -38,7 +38,7 @@ def cambiar_fecha(titulo: str, fecha: str):
     if not re.fullmatch('\\d{8}', fecha):
         raise ValueError('El formato tiene que ser YYYYMMDD')
 
-    fields = ['titulo', 'titulo_original', 'fecha_estreno', 'paises', 'generos', 'director']
+    fields = ['titulo', 'titulo_original', 'fecha_estreno', 'paises', 'generos', 'director', 'url']
     data = search.search('titulo', titulo, None, *fields)
     films = []
     for film in data:
