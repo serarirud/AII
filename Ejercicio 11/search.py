@@ -6,26 +6,25 @@ from whoosh.qparser.default import MultifieldParser
 
 INDEXDIR = 'Ejercicio 11/indexdir'
 
-def search(fields, word, limit, *return_fields) -> list[tuple]:
+def search(fields_to_search, str_query: str, limit: int, return_fields: list) -> list[tuple]:
     ix = open_dir(INDEXDIR)
     with ix.searcher() as searcher:
 
         results: list[tuple] = list()
-        if isinstance(fields, list):
-            query = MultifieldParser(fields, ix.schema).parse(word)
+        if isinstance(fields_to_search, list):
+            query = MultifieldParser(fields_to_search, ix.schema).parse(str_query)
         else:
-            query = QueryParser(fields, ix.schema).parse(word)
+            query = QueryParser(fields_to_search, ix.schema).parse(str_query)
             
         for hit in searcher.search(query, limit=limit):
-            datos = list()
-            for c in return_fields:
-                datos.append(str(hit[c]))
+            datos = [str(hit[c]) for c in return_fields]
+            print(type(datos))
             results.append(tuple(datos))
     
     return results
 
 def search_by_title_or_description(words) -> list[tuple[str, str, str]]:
-    return search(['titulo', 'sinopsis'], words.replace(' ', ' OR '), 10, 'titulo', 'titulo_original', 'director')
+    return search(['titulo', 'sinopsis'], words.replace(' ', ' OR '), 10, ['titulo', 'titulo_original', 'director'])
 
 def search_by_genre(genero_input: str) -> list[tuple[str, str, str]]:
     ix = open_dir(INDEXDIR)
@@ -41,7 +40,7 @@ def search_by_genre(genero_input: str) -> list[tuple[str, str, str]]:
     if genero_input not in generos:
         raise ValueError('Introduce un género válido.')
 
-    return search('generos', genero_input, 20, 'titulo', 'titulo_original', 'paises')
+    return search('generos', genero_input, 20, ['titulo', 'titulo_original', 'paises'])
 
 def search_by_date_range(date_range) -> list[tuple[str, str]]:
     if not re.fullmatch('\\d{8} \\d{8}', date_range):
@@ -49,12 +48,12 @@ def search_by_date_range(date_range) -> list[tuple[str, str]]:
     start, end = date_range.split(' ')
 
     try:
-        return search('fecha_estreno', '{' + f'{start}TO{end}]', None, 'titulo', 'fecha_estreno')
+        return search('fecha_estreno', '{' + f'{start}TO{end}]', None, ['titulo', 'fecha_estreno'])
     except:
         raise ValueError('Valor de fechas incorrecto')
 
 def search_by_title(title: str) -> list[tuple[str, str]]:
-    return search('titulo', title.replace(' ', ' OR '), None, 'titulo', 'fecha_estreno')
+    return search('titulo', title.replace(' ', ' OR '), None, ['titulo', 'fecha_estreno'])
 
 if __name__ == '__main__':
     print(search_by_title_or_description('Eternals'))

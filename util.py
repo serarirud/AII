@@ -132,3 +132,25 @@ def create_spinbox(label: str, options_command, command):
     spinbox = tk.Spinbox(window, width=200, values=options_command())
     spinbox.pack(side='top')
     spinbox.bind('<Return>', listar)
+
+### WHOOSH SEARCH UTIL ###
+from whoosh.index import open_dir
+from whoosh.qparser import QueryParser
+from whoosh.qparser.default import MultifieldParser
+
+def search(indexdir: str, fields_to_search, str_query: str, limit: int, return_fields: list) -> list[tuple]:
+    ix = open_dir(indexdir)
+    with ix.searcher() as searcher:
+
+        results: list[tuple] = list()
+        if isinstance(fields_to_search, list):
+            query = MultifieldParser(fields_to_search, ix.schema).parse(str_query)
+        else:
+            query = QueryParser(fields_to_search, ix.schema).parse(str_query)
+            
+        for hit in searcher.search(query, limit=limit):
+            datos = [str(hit[c]) for c in return_fields]
+            print(type(datos))
+            results.append(tuple(datos))
+    
+    return results
