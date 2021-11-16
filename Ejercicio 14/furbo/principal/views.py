@@ -33,6 +33,6 @@ def estadios_mayores(request):
     return render(request, 'estadios.html', estadios)
 
 def cargar(request):
-    # hay que borrar todo antes
+    # hay que borrar todo antes, por cada modelo M, M.objects.all().delete()
     size = {'partidos_size': 0, 'equipo_size': 0, 'jornada_size': 0, 'temporada_size': 0}
     return render(request, 'data_saved.html', size)
