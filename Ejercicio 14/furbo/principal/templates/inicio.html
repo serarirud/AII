@@ -1,0 +1,11 @@
+{% extends 'base.html' %}
+{% block title %}Inicio{% endblock %}
+{% block titulo %}Inicio{% endblock %}
+{% block content %}
+<p>Actualmente tenemos almacenados {{size}} temporadas</p>
+<ul>
+{% for temporada in temporadas %}
+<li>{{temporada}}</li>
+{% endfor %}
+</ul>
+{% endblock %}

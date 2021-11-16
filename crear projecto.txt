@@ -1,2 +1,3 @@
 django-admin startproject <nombre> # Crea el proyecto
 python3 manage.py startapp <nombre> # Crea una aplicación
+python3 manage.py shell

@@ -1,0 +1,13 @@
+{% extends 'base.html' %}
+{% block title %} Temporada {{temporada}} {% endblock %}
+{% block titulo %} Partidos de la Temporada {{temporada}} Agrupados por Jornadas {% endblock %}
+{% block content %}
+{% for jornada in jornadas %}
+<h3>{{jornada}}</h3>
+<ul>
+    {% for partido in jornada.partidos_set.all %}
+    <li>{{partido}}</li>
+    {% endfor %}
+</ul>
+{% endfor %}
+{% endblock %}

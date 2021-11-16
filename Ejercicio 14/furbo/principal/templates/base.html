@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang='es'>
+    <head>
+        <meta charset="UTF-8" />
+        <title>{% block title %}{% endblock %}</title>
+    </head>
+    <body>
+        <h1>{% block titulo %}{% endblock %}</h1>
+        <ul>
+            <li><a href=''>Inicio</a></li>
+            <li><a href='ultimaTemporada/'>Última temporada</a></li>
+            <li><a href='equipos/'>Equipos</a></li>
+            <li><a href='estadiosMayores/'>Cinco estadios con más aforo</a></li>
+            <li><a href='cargar/'>Cargar <strong>AVISO: Se borraran todos los datos</strong></a></li>
+        </ul>
+        {% block content %}{% endblock %}
+    </body>
+</html>
