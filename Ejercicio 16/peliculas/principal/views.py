@@ -3,12 +3,24 @@ import principal.webscrapping as wb
 from principal.models import *
 
 # Create your views here.
-def test(request):
+def index(request):
+    data_len = len(Pelicula.objects.all())
+    return render(request, 'index.html', {'size': data_len})
+
+def listar(request):
+    return render(request, 'listar_peliculas.html', {'peliculas': Pelicula.objects.all()})
+
+def confirm(request):
+    return render(request, 'confirm.html')
+
+def save(request):
     Pelicula.objects.all().delete()
     Director.objects.all().delete()
     Pais.objects.all().delete()
     Genero.objects.all().delete()
-    data = wb.get_data(1)
+
+    pages = 4
+    data = wb.get_data(pages)
     directores = set()
     paises = set()
     generos = set()
@@ -30,4 +42,8 @@ def test(request):
     Pelicula.objects.bulk_create(peliculas)
     for p in data:
         Pelicula.objects.filter(id=p['id'])[0].generos.set([Genero.objects.filter(nombre=genero)[0] for genero in p['generos']])
-    return render(request, 'index.html')
+    peliculas = len(Pelicula.objects.all())
+    paises = len(Pais.objects.all())
+    generos = len(Genero.objects.all())
+    directores = len(Director.objects.all())
+    return render(request, 'save.html', {'peliculas': peliculas, 'paises': paises, 'generos': generos, 'directores': directores})

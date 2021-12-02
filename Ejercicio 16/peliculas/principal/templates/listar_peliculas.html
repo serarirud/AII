@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+{% block title %}Listado{% endblock %}
+{% block titulo %}Listado{% endblock %}
+{% block content %}
+{% load i18n %}
+{% for pelicula in peliculas %}
+<div>
+    <p><strong>Titulo: </strong>{{pelicula.titulo}}</p>
+    <div style="padding-left: 3%;">
+        <p><strong>País: </strong>{{pelicula.pais.nombre}} | <strong>Director: </strong>{{pelicula.director.nombre}} | 
+            <strong>Fecha de estreno: </strong>{% language 'es-es' %}{{pelicula.fecha | date:"d \d\e F \d\e Y"}}{% endlanguage %}
+        </p>
+        <p><strong>Géneros: </strong>{% for genero in pelicula.generos.all %} {{genero.nombre}} {% endfor %}</p>
+    </div>
+</div>
+{% endfor %}
+{% endblock %}

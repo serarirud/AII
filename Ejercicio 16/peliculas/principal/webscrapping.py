@@ -11,7 +11,7 @@ from datetime import datetime
 INDEXDIR = 'Ejercicio 11/indexdir'
 LINK = 'https://www.elseptimoarte.net/estrenos/{}/'
 
-def get_data(paginas: int) -> list[dict[str, str]]:
+def get_data(paginas: int):
     '''Accede a la web y obtiene los siguientes datos de los
     estrenos en España: Título, Título original, País/es, Fecha de
     estreno en España, Director y Género/s'''
@@ -24,7 +24,7 @@ def get_data(paginas: int) -> list[dict[str, str]]:
             datos.append(get_film_data_from_url(url, j + i*25))
     return datos
 
-def get_film_data_from_url(url: str, id_: int) -> dict[str, str]:
+def get_film_data_from_url(url: str, id_: int):
     raw_html = urllib.request.urlopen(url).read().decode('ISO-8859-1')
     html = BeautifulSoup(raw_html, 'html.parser')
     
