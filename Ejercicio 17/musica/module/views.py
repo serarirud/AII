@@ -1,6 +1,8 @@
-from django.shortcuts import render
+from django.shortcuts import render, get_list_or_404
 from module.models import *
 import csv
+
+# USAR GET_LIST_OR_404 para cuando se vaya a filtrar por id para gestionar el error
 
 # Create your views here.
 def main(request):
